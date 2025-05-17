@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 @Database(entities = [ExpenseEntity::class], version = 1)
 abstract class ExpenseDataBase : RoomDatabase() {
     abstract fun expenseDao(): ExpenseDao
+
     companion object {
         const val DATABASE_NAME = "expense_database"
 
@@ -23,7 +24,7 @@ abstract class ExpenseDataBase : RoomDatabase() {
                 context.applicationContext,
                 ExpenseDataBase::class.java,
                 DATABASE_NAME
-            ).addCallback(object: Callback() {
+            ).addCallback(object : Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
 
@@ -33,10 +34,46 @@ abstract class ExpenseDataBase : RoomDatabase() {
                 fun initBasicData(context: Context) {
                     CoroutineScope(Dispatchers.IO).launch {
                         val dao = getDatabase(context).expenseDao()
-                        dao.insertExpense(ExpenseEntity(1, "Salary", 5000.40, System.currentTimeMillis(), "Income", "Income"))
-                        dao.insertExpense(ExpenseEntity(2, "Paypal", 2000.50, System.currentTimeMillis(), "Paypal", "Income"))
-                        dao.insertExpense(ExpenseEntity(3, "Netflix", 100.43, System.currentTimeMillis(), "Netflix", "Expense"))
-                        dao.insertExpense(ExpenseEntity(4, "Starbucks", 400.56, System.currentTimeMillis(), "Starbucks", "Expense"))
+                        dao.insertExpense(
+                            ExpenseEntity(
+                                1,
+                                "Salary",
+                                5000.40,
+                                "11/05/2025",
+                                "Income",
+                                "Income"
+                            )
+                        )
+                        dao.insertExpense(
+                            ExpenseEntity(
+                                2,
+                                "Paypal",
+                                2000.50,
+                                "11/05/2025",
+                                "Paypal",
+                                "Income"
+                            )
+                        )
+                        dao.insertExpense(
+                            ExpenseEntity(
+                                3,
+                                "Netflix",
+                                100.43,
+                                "11/05/2025",
+                                "Netflix",
+                                "Expense"
+                            )
+                        )
+                        dao.insertExpense(
+                            ExpenseEntity(
+                                4,
+                                "Starbucks",
+                                400.56,
+                                "11/05/2025",
+                                "Starbucks",
+                                "Expense"
+                            )
+                        )
                     }
                 }
             })

@@ -1,8 +1,8 @@
 package com.tm.expensetracker
 
-import android.content.ClipData.Item
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.tm.expensetracker.data.model.ExpenseEntity
 import com.tm.expensetracker.ui.theme.Zinc
 import com.tm.expensetracker.viewmodel.HomeViewModel
@@ -38,13 +40,14 @@ import com.tm.expensetracker.viewmodel.HomeViewModelFactory
 import com.tm.expensetracker.widget.ExpenseTextView
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
 
-    val viewModel : HomeViewModel = HomeViewModelFactory(LocalContext.current).create(HomeViewModel::class.java)
+    val viewModel: HomeViewModel =
+        HomeViewModelFactory(LocalContext.current).create(HomeViewModel::class.java)
 
     Surface(modifier = Modifier.fillMaxSize()) {
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-            val (nameRow, list, card, topBar) = createRefs()
+            val (nameRow, list, card, topBar, add) = createRefs()
             Image(
                 painter = painterResource(id = R.drawable.ic_topbar),
                 contentDescription = null,
@@ -95,15 +98,32 @@ fun HomeScreen() {
                         top.linkTo(nameRow.bottom)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                    }, balance, income, expenses)
+                    }, balance, income, expenses
+            )
 
-            TransactionList(modifier = Modifier.fillMaxWidth().constrainAs(list) {
-                top.linkTo(card.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom)
-                height = Dimension.fillToConstraints
-            }, list = state.value, viewModel)
+            TransactionList(modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(list) {
+                    top.linkTo(card.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
+                    height = Dimension.fillToConstraints
+                }, list = state.value, viewModel)
+            Image(
+                painter = painterResource(id = android.R.drawable.ic_menu_add),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .clickable {
+                        navController.navigate("/add")
+                    }
+                    .constrainAs(add) {
+                        bottom.linkTo(parent.bottom, margin = 16.dp)
+                        end.linkTo(parent.end, margin = 16.dp)
+                    }
+            )
         }
     }
 }
@@ -120,9 +140,11 @@ fun CardItem(modifier: Modifier, balance: String, income: String, expense: Strin
             .padding(16.dp)
 
     ) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .weight(1f)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
             Column(modifier = Modifier.align(Alignment.CenterStart)) {
                 ExpenseTextView(
                     text = "Total Balance",
@@ -160,12 +182,13 @@ fun CardItem(modifier: Modifier, balance: String, income: String, expense: Strin
                 title = "Expense",
                 amount = expense,
                 image = R.drawable.ic_expense
-            )}
+            )
+        }
     }
 }
 
 @Composable
-fun TransactionList(modifier: Modifier, list:List<ExpenseEntity>, viewModel: HomeViewModel) {
+fun TransactionList(modifier: Modifier, list: List<ExpenseEntity>, viewModel: HomeViewModel) {
     LazyColumn(modifier = modifier.padding(horizontal = 16.dp)) {
         item {
             Box(modifier = Modifier.fillMaxWidth()) {
@@ -180,7 +203,7 @@ fun TransactionList(modifier: Modifier, list:List<ExpenseEntity>, viewModel: Hom
                 )
             }
         }
-        items(list) {item ->
+        items(list) { item ->
             TransactionItem(
                 title = item.title,
                 amount = item.amount.toString(),
@@ -214,7 +237,9 @@ fun CardRowItem(modifier: Modifier, title: String, amount: String, image: Int) {
 @Composable
 fun TransactionItem(title: String, amount: String, icon: Int, date: String, color: Color) {
 
-    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 8.dp)) {
         Row {
             Image(
                 painter = painterResource(id = icon),
@@ -241,5 +266,5 @@ fun TransactionItem(title: String, amount: String, icon: Int, date: String, colo
 @Composable
 @Preview(showBackground = true)
 fun PreviewHomeScreen() {
-    HomeScreen()
+    HomeScreen(rememberNavController())
 }

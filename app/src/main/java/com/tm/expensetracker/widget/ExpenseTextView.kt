@@ -1,6 +1,5 @@
 package com.tm.expensetracker.widget
 
-import android.graphics.fonts.FontStyle
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
