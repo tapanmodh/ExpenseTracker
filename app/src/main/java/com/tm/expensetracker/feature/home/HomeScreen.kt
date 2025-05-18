@@ -1,4 +1,4 @@
-package com.tm.expensetracker
+package com.tm.expensetracker.feature.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,6 +33,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.tm.expensetracker.R
+import com.tm.expensetracker.Utils
 import com.tm.expensetracker.data.model.ExpenseEntity
 import com.tm.expensetracker.ui.theme.Zinc
 import com.tm.expensetracker.viewmodel.HomeViewModel
@@ -101,21 +103,24 @@ fun HomeScreen(navController: NavController) {
                     }, balance, income, expenses
             )
 
-            TransactionList(modifier = Modifier
-                .fillMaxWidth()
-                .constrainAs(list) {
-                    top.linkTo(card.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                    height = Dimension.fillToConstraints
-                }, list = state.value, viewModel)
+            TransactionList(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .constrainAs(list) {
+                        top.linkTo(card.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                        height = Dimension.fillToConstraints
+                    }, list = state.value
+            )
             Image(
-                painter = painterResource(id = android.R.drawable.ic_menu_add),
+                painter = painterResource(id = R.drawable.ic_add),
                 contentDescription = null,
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
+                    .background(Zinc)
                     .clickable {
                         navController.navigate("/add")
                     }
@@ -188,26 +193,32 @@ fun CardItem(modifier: Modifier, balance: String, income: String, expense: Strin
 }
 
 @Composable
-fun TransactionList(modifier: Modifier, list: List<ExpenseEntity>, viewModel: HomeViewModel) {
+fun TransactionList(
+    modifier: Modifier,
+    list: List<ExpenseEntity>,
+    title: String = "Recent Transactions"
+) {
     LazyColumn(modifier = modifier.padding(horizontal = 16.dp)) {
         item {
             Box(modifier = Modifier.fillMaxWidth()) {
                 ExpenseTextView(
-                    text = "Recent Transactions",
+                    text = title,
                     fontSize = 20.sp
                 )
-                ExpenseTextView(
-                    text = "See All",
-                    fontSize = 16.sp,
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                )
+                if (title == "Recent Transactions") {
+                    ExpenseTextView(
+                        text = "See All",
+                        fontSize = 16.sp,
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    )
+                }
             }
         }
         items(list) { item ->
             TransactionItem(
                 title = item.title,
                 amount = item.amount.toString(),
-                icon = viewModel.getItemIcon(item),
+                icon = Utils.getItemIcon(item),
                 date = item.date.toString(),
                 color = if (item.type == "Income") Color.Green else Color.Red
             )
@@ -237,9 +248,11 @@ fun CardRowItem(modifier: Modifier, title: String, amount: String, image: Int) {
 @Composable
 fun TransactionItem(title: String, amount: String, icon: Int, date: String, color: Color) {
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .padding(vertical = 8.dp)) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
         Row {
             Image(
                 painter = painterResource(id = icon),

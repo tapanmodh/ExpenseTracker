@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.tm.expensetracker
+package com.tm.expensetracker.feature.add_expense
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -48,6 +48,8 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.tm.expensetracker.R
+import com.tm.expensetracker.Utils
 import com.tm.expensetracker.data.model.ExpenseEntity
 import com.tm.expensetracker.viewmodel.AddExpenseViewModel
 import com.tm.expensetracker.viewmodel.AddExpenseViewModelFactory
@@ -88,9 +90,11 @@ fun AddExpense(navController: NavController) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_back),
                     contentDescription = null,
-                    modifier = Modifier.align(
-                        Alignment.CenterStart
-                    )
+                    modifier = Modifier
+                        .align(
+                            Alignment.CenterStart
+                        )
+                        .clickable { navController.popBackStack() },
                 )
 
                 ExpenseTextView(
@@ -110,13 +114,14 @@ fun AddExpense(navController: NavController) {
                     )
                 )
             }
-            DataForm(modifier = Modifier
-                .padding(top = 60.dp)
-                .constrainAs(card) {
-                    top.linkTo(nameRow.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }, onAddExpenseClicked = {
+            DataForm(
+                modifier = Modifier
+                    .padding(top = 60.dp)
+                    .constrainAs(card) {
+                        top.linkTo(nameRow.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }, onAddExpenseClicked = {
                 coroutineScope.launch {
                     if (viewModel.addExpense(it)) {
                         navController.popBackStack()
